@@ -16,6 +16,7 @@ import ucontext.urlify as urlify
 def main():
     """ Main test script! """
     prog = __file__
+    check_basic({"base": urlify.VALID_YTB_BASE64})
     code = runner(sys.stdout, sys.stderr, sys.argv[1:])
     if code is None:
         print(f"""Usage:
@@ -89,10 +90,22 @@ def context(out, err, ctx, param, opts) -> int:
         out.write(f"{new}\n")
         is_ok = new.is_ok()
         if not is_ok:
-            err.write(f"Error in context: '{word}'\n")
+            msg = new.message()
+            err.write(f"Error in context: '{word}' ({msg})\n")
             return 1
+        alen, expected_len = len(word), len("STp6KZpRw_M")	# Example!
+        is_ok = alen in (expected_len-1, expected_len, expected_len+1)
+        if not is_ok:
+            err.write(f"Warn, expected {expected_len} chars, got: {len(word)}\n")
     return 0
 
+
+def check_basic(adict:dict):
+    """ Asserts whether dictionary is ok! """
+    valids = adict["base"]
+    assert len(valids) == 64, f"Invalid Base64: {valids}"
+    for achr in valids[:-2]:
+        assert achr.isalnum()
 
 # Main script
 if __name__ == "__main__":

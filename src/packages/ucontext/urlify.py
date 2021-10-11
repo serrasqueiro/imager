@@ -11,6 +11,10 @@ URL with context
 
 from waxpage.redit import char_map
 
+VALID_YTB_BASE64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" + \
+    "abcdefghijklmnopqrstuvwxyz" + \
+    "0123456789-_"
+
 
 class Textual():
     """ Abstract class """
@@ -62,6 +66,11 @@ class URL(Textual):
                 self._msg = f"substr non-7bit ASCII: '{simpler}'"
                 return ""
             pre = f"www.{name}.com/watch?v={substr}{post}"
+            for achr in substr:
+                if achr not in VALID_YTB_BASE64:
+                    shown = '?' if achr <= ' ' or achr > '~' or achr == ';' else achr
+                    self._msg = f"Invalid char: {shown}; ASCII: {ord(achr)}d"
+                    return ""
         else:
             pre = f"{name}/{substr}{post}"
         return pre
