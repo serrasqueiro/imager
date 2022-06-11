@@ -58,15 +58,17 @@ def run_show(out, err, param:list, opts:dict) -> int:
         if details:
             print("Image:", fname)
         exifs = imager.exif.hints(fname)
+        s_version = "?"
         if exifs:
+            s_version = exifs['@version']
             dump_exif(out, fname, exifs, int(details))
         else:
             err.write(f"No exif: {fname}\n")
             if not worse:
                 worse = 3
-        if details:
-            print(" " * 4, "Version:", exifs['@version'])
-            print()
+        assert s_version is not None
+        if details and exifs:
+            print(" " * 4, "Version:", s_version, end="\n\n")
     return worse
 
 def dump_exif(out, fname, exifs, level=0) -> int:
